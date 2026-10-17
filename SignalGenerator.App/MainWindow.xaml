@@ -1,4 +1,5 @@
 ﻿<Window x:Class="SignalGenerator.App.MainWindow"
+        xmlns:ScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,6 +8,170 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <!-- Grid.ColumnDefinitions = список колонок сетки -->
+        <Grid.ColumnDefinitions>
+            <!-- ColumnDefinition = одна колонка. Width="*" = забрать ВСЁ свободное место -->
+            <ColumnDefinition Width="*"/>
+            <!-- Вторая колонка шириной ровно 370 пикселей под кнопки -->
+            <ColumnDefinition Width="370"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- WpfPlot = график из библиотеки ScottPlot. x:Name="WpfPlot1" = имя для C# -->
+        <!-- Стоит в колонке 0 (левой), потому что Grid.Column не указан (= по умолчанию 0) -->
+        <ScottPlot:WpfPlot x:Name="WpfPlot1" />
+
+        <!-- DockPanel = контейнер. Дети прижимаются к краям (Top/Bottom/Left/Right) -->
+        <!-- Grid.Column="1" = эта панель во ВТОРОЙ колонке (справа) -->
+        <!-- LastChildFill="False" = последний ребёнок НЕ растягивается на всё пустое место -->
+        <DockPanel Grid.Column="1" LastChildFill="False">
+
+            <!-- StackPanel = ставит детей в ОДНУ ЛИНИЮ. Orientation="Horizontal" = в ряд слева направо -->
+            <!-- DockPanel.Dock="Top" = этот StackPanel прижат к ВЕРХУ DockPanel -->
+            <!-- Height="40" = высота полоски 40 пикселей -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Label = просто надпись "Длина (с):". VerticalAlignment=Center = по центру по вертикали -->
+                <!-- Margin="10,0,0,0" = отступ 10 слева, 0 сверху, 0 справа, 0 снизу -->
+                <Label Content="Длина (с):" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <!-- TextBox = поле ввода. x:Name="len_textBox" = в C# читаем как len_textBox.Text -->
+                <!-- Text="20" = что написано в поле по умолчанию при старте -->
+                <TextBox x:Name="len_textBox" Text="20" Width="40" Height="20"
+                         VerticalAlignment="Center" Margin="5,0,0,0"/>
+                <!-- Label = просто надпись "Частота (Гц):" -->
+                <Label Content="Частота (Гц):" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <!-- TextBox частоты. В C#: freq_textBox.Text -->
+                <TextBox x:Name="freq_textBox" Text="200" Width="45" Height="20"
+                         VerticalAlignment="Center" Margin="5,0,0,0"/>
+            </StackPanel>
+
+            <!-- Ещё один StackPanel = ещё один ГОРИЗОНТАЛЬНЫЙ ряд элементов -->
+            <!-- DockPanel.Dock="Top" = снова прижат кверху (под предыдущим рядом) -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button = кнопка. Content="Sin" = текст на кнопке -->
+                <!-- Click="Button_Click_Sin" = при нажатии вызвать метод Button_Click_Sin в .xaml.cs -->
+                <Button Content="Sin" Width="50" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Click_Sin"/>
+                <!-- Label = подпись "Период (с):" -->
+                <Label Content="Период (с):" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox периода синуса. Имя period_textBox -->
+                <TextBox x:Name="period_textBox" Text="1" Width="35" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <!-- Label = подпись "Фаза (с):" -->
+                <Label Content="Фаза (с):" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox фазы. Имя phase_textBox -->
+                <TextBox x:Name="phase_textBox" Text="0" Width="35" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <!-- Label = подпись "Масштаб:" -->
+                <Label Content="Масштаб:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox масштаба (высоты) синуса. Имя scale_textBox -->
+                <TextBox x:Name="scale_textBox" Text="1" Width="35" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+            </StackPanel>
+
+            <!-- StackPanel = горизонтальный ряд для кнопки "Прямая" и полей k, b -->
+            <!-- DockPanel.Dock="Top" = прижать кверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button "Прямая". Click → метод Button_Click_Line в .xaml.cs -->
+                <Button Content="Прямая" Width="50" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Click_Line"/>
+                <!-- Label = подпись "k:" (наклон прямой) -->
+                <Label Content="k:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox для k. Имя k_textBox -->
+                <TextBox x:Name="k_textBox" Text="1" Width="35" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <!-- Label = подпись "b:" (сдвиг прямой вверх/вниз) -->
+                <Label Content="b:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox для b. Имя b_textBox -->
+                <TextBox x:Name="b_textBox" Text="2" Width="35" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+            </StackPanel>
+
+            <!-- StackPanel = горизонтальный ряд для шума -->
+            <!-- DockPanel.Dock="Top" = прижать кверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button "Шум". Click → Button_Click_Noise -->
+                <Button Content="Шум" Width="50" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Click_Noise"/>
+                <!-- Label = подпись "Амплитуда:" (сила шума) -->
+                <Label Content="Амплитуда:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox амплитуды шума. Имя amplitude_textBox -->
+                <TextBox x:Name="amplitude_textBox" Text="0.1" Width="40" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+            </StackPanel>
+
+            <!-- StackPanel = горизонтальный ряд фильтров -->
+            <!-- DockPanel.Dock="Top" = прижать кверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button офлайн-фильтра. Click → Button_FilterOffline -->
+                <Button Content="Фильтр офлайн" Width="95" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_FilterOffline"/>
+                <!-- Label = подпись "Окно (с):" = размер окна фильтра в секундах -->
+                <Label Content="Окно (с):" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox окна фильтра. Имя window_textBox -->
+                <TextBox x:Name="window_textBox" Text="0.2" Width="40" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <!-- Button онлайн-фильтра. Click → Button_FilterOnline -->
+                <Button Content="Фильтр онлайн" Width="95" Margin="8,0,0,0"
+                        VerticalAlignment="Center" Click="Button_FilterOnline"/>
+            </StackPanel>
+
+            <!-- StackPanel = горизонтальный ряд "зашкалов" (выходов за диапазон) -->
+            <!-- DockPanel.Dock="Top" = прижать кверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button поиска зашкалов. Click → Button_Analyze -->
+                <Button Content="Зашкалы" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Analyze"/>
+                <!-- Label = подпись нижней границы нормы -->
+                <Label Content="Мин.:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox минимума. Имя min_textBox -->
+                <TextBox x:Name="min_textBox" Text="-0.2" Width="45" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+                <!-- Label = подпись верхней границы нормы -->
+                <Label Content="Макс.:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <!-- TextBox максимума. Имя max_textBox -->
+                <TextBox x:Name="max_textBox" Text="0.8" Width="45" Height="20"
+                         VerticalAlignment="Center" Margin="4,0,0,0"/>
+            </StackPanel>
+
+            <!-- StackPanel = ряд кнопок СОХРАНИТЬ/ЗАГРУЗИТЬ РАЗМЕТКУ ЗАШКАЛОВ -->
+            <!-- ВАЖНО: это НЕ разметка окна (XAML). Это файл с кусками start;end -->
+            <!-- DockPanel.Dock="Top" = прижать кверху -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="40">
+                <!-- Button. Click → Button_SaveMarkers (сохранить индексы зашкалов в csv) -->
+                <Button Content="Сохранить разметку" Width="130" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_SaveMarkers"/>
+                <!-- Button. Click → Button_LoadMarkers (загрузить индексы и нарисовать линии) -->
+                <Button Content="Загрузить разметку" Width="130" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_LoadMarkers"/>
+            </StackPanel>
+
+            <!-- StackPanel = ряд "Сумма" и "Склейка" -->
+            <!-- DockPanel.Dock="Bottom" = прижать этот ряд к НИЗУ правой панели -->
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="40">
+                <!-- Button суммы сигналов. Click → Button_Sum -->
+                <Button Content="Сумма" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Sum"/>
+                <!-- Button склейки сигналов. Click → Button_Skley -->
+                <Button Content="Склейка" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Skley"/>
+            </StackPanel>
+
+            <!-- StackPanel = ряд управления: сброс, удалить, файл сигнала -->
+            <!-- DockPanel.Dock="Bottom" = тоже к низу (окажется НАД предыдущим Bottom, порядок Dock) -->
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="40">
+                <!-- Button очистки всего. Click → Button_Clear -->
+                <Button Content="Сброс" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Clear"/>
+                <!-- Button удаления последнего сигнала. Click → Button_Delete -->
+                <Button Content="Удалить" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Delete"/>
+                <!-- Button загрузки СИГНАЛА из csv. Click → Button_Load -->
+                <Button Content="Загрузить" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Load"/>
+                <!-- Button сохранения СИГНАЛА в csv. Click → Button_Save -->
+                <Button Content="Сохранить" Width="70" Margin="10,0,0,0"
+                        VerticalAlignment="Center" Click="Button_Save"/>
+            </StackPanel>
+
+        </DockPanel>
     </Grid>
 </Window>
